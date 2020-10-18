@@ -98,8 +98,7 @@ RUN ln -sf /dev/stdout /usr/local/openresty/nginx/logs/access.log \
 	&& ln -sf /dev/stderr /usr/local/openresty/nginx/logs/error.log
 
 RUN ln -s /usr/local/openresty/nginx/sbin/nginx /usr/bin/nginx
-
-EXPOSE 80 443
+RUN ln -s /usr/local/openresty/nginx/conf /etc/nginx
 
 RUN rm -rf /openresty-${OPENRESTY_VERSION}
 RUN rm -rf /openresty-${OPENRESTY_VERSION}.tar.gz
@@ -113,10 +112,11 @@ RUN set -ex; \
     mv /var/wordpress /var/www; \
 	chown -R www-data:www-data /var/www;
 
-RUN ln -s /usr/local/openresty/nginx/conf /etc/nginx
+
 RUN rmdir /var/www/html && mv /var/www/wordpress /var/www/html
 RUN echo '#!/bin/bash\n/usr/local/openresty/nginx/sbin/nginx -g "daemon off;" &\nphp-fpm --nodaemonize &\nwhile true; do sleep 1d; done' > /usr/bin/init.sh
 RUN chmod +x /usr/bin/init.sh
 
+EXPOSE 80 443
 WORKDIR /var/www/html
 CMD ["/usr/bin/init.sh"]
